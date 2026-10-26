@@ -1,14 +1,17 @@
-import { useAtomValue } from "@effect/atom-react/Hooks";
+import { useAtomSet, useAtomValue } from "@effect/atom-react/Hooks";
+import { Button } from "@recensio/ui/button";
 import { createFileRoute } from "@tanstack/react-router";
 import * as AsyncResult from "effect/reactivity/AsyncResult";
+import { useState } from "react";
 
+import { Auth } from "@/auth";
 import { Api } from "@/rpc";
 import { ThemeToggle } from "@/theme";
 
 /** Whether the API reaches the database, asked once per page load. */
 const health = Api.query("system.health", undefined);
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_app/")({
   component: Home,
 });
 
@@ -20,6 +23,7 @@ function Home() {
         <ThemeToggle />
       </div>
       <Status />
+      <Account />
     </main>
   );
 }
@@ -34,5 +38,31 @@ function Status() {
         onSuccess: ({ value }) => `API and database up — database time ${value.database}`,
       })}
     </p>
+  );
+}
+
+function Account() {
+  const { email } = Auth.useSession();
+  const signOut = useAtomSet(Auth.signOut, { mode: "promise" });
+  const [busy, setBusy] = useState(false);
+
+  const leave = () => {
+    setBusy(true);
+    // Whether or not the server answered, this browser is done with the session.
+    void signOut().finally(() => {
+      Auth.forget();
+      window.location.assign("/sign-in");
+    });
+  };
+
+  return (
+    <div className="flex items-center justify-between gap-2 text-sm">
+      <span>
+        Signed in as <span className="font-medium">{email}</span>
+      </span>
+      <Button variant="outline" size="sm" disabled={busy} onClick={leave}>
+        {busy ? "Signing out…" : "Sign out"}
+      </Button>
+    </div>
   );
 }
