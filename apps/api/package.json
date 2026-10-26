@@ -9,8 +9,8 @@
   "dependencies": {
     "@alchemy.run/cloudflare": "catalog:",
     "@recensio/db": "workspace:*",
+    "@recensio/rpc": "workspace:*",
     "alchemy": "catalog:",
-    "drizzle-orm": "catalog:",
     "effect": "catalog:"
   },
   "devDependencies": {

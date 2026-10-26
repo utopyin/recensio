@@ -8,7 +8,7 @@ Defines how packages in this monorepo may depend on each other: the four tiers, 
 | --- | --------------- | -------------- | ------------------------------------------------------------------- | -------------------------------------------------------- |
 | 1   | **Packages**    | `packages/`    | mechanism, shapes, infrastructure clients, cross-boundary contracts | Knows about no concept, or only the _shape_ of one       |
 | 2   | **Domains**     | `domains/`     | one per concept, none yet                                           | Owns one concept end to end                              |
-| 3   | **Entrypoints** | `entrypoints/` | `http`, later `rpc`, `jobs`, …                                      | Assembles domains into a transport, protocol, or surface |
+| 3   | **Entrypoints** | `entrypoints/` | `rpc`, later `jobs`, …                                              | Assembles domains into a transport, protocol, or surface |
 | 4   | **Apps**        | `apps/`        | `web`, `api`                                                        | Deployables and runtimes. Imported by nobody             |
 
 Workspace package names are `@recensio/<dir>` regardless of tier; the tier is the directory.
