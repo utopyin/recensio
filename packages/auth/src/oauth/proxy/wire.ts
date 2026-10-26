@@ -1,0 +1,63 @@
+import * as Cause from "effect/Cause";
+import * as Crypto from "effect/Crypto";
+import * as Effect from "effect/Effect";
+import * as Base64Url from "effect/encoding/Base64Url";
+import * as Schema from "effect/Schema";
+import * as Stream from "effect/Stream";
+
+import { Rejected, Unavailable } from "./models";
+
+export const noStore = {
+  "cache-control": "no-store",
+  pragma: "no-cache",
+  "referrer-policy": "no-referrer",
+};
+
+export const secrets = Effect.gen(function* () {
+  const crypto = yield* Crypto.Crypto;
+
+  return {
+    random: crypto.randomBytes(32).pipe(
+      Effect.map((bytes) => {
+        const value = Base64Url.encode(bytes);
+
+        bytes.fill(0);
+
+        return value;
+      }),
+      Effect.catchCause((cause) => Effect.failCause(Cause.map(cause, () => Unavailable.make({})))),
+    ),
+    digest: (value: string) =>
+      crypto.digest("SHA-256", new TextEncoder().encode(value)).pipe(
+        Effect.map(Base64Url.encode),
+        Effect.catchCause((cause) =>
+          Effect.failCause(Cause.map(cause, () => Unavailable.make({}))),
+        ),
+      ),
+  };
+});
+
+export const readText = Effect.fnUntraced(function* <E, R>(
+  stream: Stream.Stream<Uint8Array, E, R>,
+  maximum: number,
+) {
+  let bytes = 0;
+
+  return yield* stream.pipe(
+    Stream.mapEffect((chunk) => {
+      bytes += chunk.byteLength;
+
+      return bytes > maximum ? Effect.fail(Rejected.make({})) : Effect.succeed(chunk);
+    }),
+    Stream.decodeText(),
+    Stream.runFold(
+      () => "",
+      (text, chunk) => text + chunk,
+    ),
+    Effect.catchCause((cause) =>
+      Effect.failCause(
+        Cause.map(cause, (error) => (Schema.is(Rejected)(error) ? error : Unavailable.make({}))),
+      ),
+    ),
+  );
+});

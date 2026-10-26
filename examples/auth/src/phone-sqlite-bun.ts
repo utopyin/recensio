@@ -1,0 +1,461 @@
+import assert from "node:assert/strict";
+
+import { BunRuntime } from "@effect/platform-bun";
+import * as SqliteClient from "@effect/sql-sqlite-bun/SqliteClient";
+import {
+  Auth,
+  Hooks,
+  Operations,
+  PhoneOtp,
+  Proofs,
+  Sessions,
+  SmsDelivery,
+  WebCrypto,
+} from "@yielded/auth";
+import { phonePersistenceLayer } from "@yielded/auth-persistence-drizzle";
+import {
+  Database,
+  coordinatePhonePersistence,
+  databaseLayer,
+  makeAuthenticationAuthorityServices,
+  makePhonePersistenceServices,
+  makeProofPersistenceServices,
+} from "@yielded/auth-persistence-drizzle/SqliteBun";
+import { eq } from "drizzle-orm";
+import { Crypto, Effect, Layer, Redacted, Schema } from "effect";
+import { SqlClient } from "effect/sql";
+
+import { keyring, phone, sessionPolicy, sessions, shopAuth } from "./phone-application";
+import {
+  admissionPolicy,
+  customer,
+  credential,
+  identifier,
+  mapping,
+  migrate,
+  nativeSubject,
+  proofs,
+  requirement,
+  subjectId,
+} from "./phone-sqlite-schema";
+
+export const phoneConsumer = Effect.gen(function* () {
+  const crypto = yield* Crypto.Crypto;
+  const database = yield* Database;
+
+  yield* migrate;
+
+  // Phone completion owns these proof writes, even without a separate proof service.
+  const sql = yield* SqlClient.SqlClient;
+
+  yield* sql`drop table phone_proof`;
+  yield* sql`create table phone_proof(moduleId text not null,purpose text not null,seriesKey text not null,proofId text not null,binding text not null,verifierKeyId text not null,verifierDigest text not null,issuedAt text not null,expiresAt text not null,failedAttempts integer not null,unique(moduleId,proofId))`;
+
+  const drifted = yield* makePhonePersistenceServices(mapping).pipe(Effect.result);
+  let entered = false;
+
+  const coordinate = coordinatePhonePersistence(
+    Effect.succeed(database),
+    { mapping },
+    Effect.sync(() => {
+      entered = true;
+    }),
+  );
+
+  const driftedOwner = yield* coordinate.pipe(Effect.result);
+
+  assert(
+    drifted._tag === "Failure" && Schema.is(PhoneOtp.PhoneConfigurationError)(drifted.failure),
+    "Phone storage accepted a missing proof-series key",
+  );
+  assert(
+    driftedOwner._tag === "Failure" &&
+      Schema.is(PhoneOtp.PhoneConfigurationError)(driftedOwner.failure) &&
+      !entered,
+    "Phone coordination accepted a missing proof-series key",
+  );
+  yield* sql`create unique index phone_proof_series_unique on phone_proof(moduleId,purpose,seriesKey)`;
+  yield* coordinate;
+  assert(entered, "Phone coordination did not recover after restoring the proof-series key");
+
+  const phoneStorage = phonePersistenceLayer(makePhonePersistenceServices(mapping));
+  const proofServices = yield* makeProofPersistenceServices(proofs);
+
+  const authority = yield* makeAuthenticationAuthorityServices({
+    moduleId: sessions.moduleId,
+    clock: proofs.clock,
+    subjectId,
+    subject: {
+      table: customer,
+      id: "customerNo",
+      status: "enabled",
+      securityRevision: "security",
+      activeStatusValue: true,
+      isActiveStatus: (value: unknown) => value === true,
+      requirementColumns: [],
+      decodeRequirement: () => Effect.succeed(requirement),
+    },
+    credential: {
+      table: credential,
+      subjectId: "customerNo",
+      credentialId: "key",
+      revision: "revision",
+      status: "enabled",
+      activeStatusValue: true,
+      isActiveStatus: (value: unknown) => value === true,
+    },
+    isConstraintConflict: () => false,
+  });
+
+  const sent: SmsDelivery.SmsMessage[] = [];
+  let failNext = false;
+
+  const sender = Layer.succeed(SmsDelivery.SmsDelivery, {
+    send: (message) =>
+      Effect.sync(() => {
+        if (failNext) {
+          failNext = false;
+
+          return { _tag: "DefiniteFailure" as const, reason: "unavailable" as const };
+        }
+        sent.push(message);
+
+        return { _tag: "Accepted" as const };
+      }),
+  });
+
+  const base = Layer.mergeAll(
+    WebCrypto.layerWebCrypto,
+    Proofs.ProofDispatchScheduler.layerInline,
+    Hooks.LifecycleHooks.empty,
+    Auth.RequestBindingConfig.layer({ keyring, lifetimeMillis: 120_000, generation: 1 }),
+    sender,
+    Proofs.ProofKeys.layer(keyring),
+    PhoneOtp.Template.layer({ render: (code) => code }),
+    Layer.succeed(PhoneOtp.PhoneDeliveryEligibility, {
+      allowed: (number) => Effect.succeed(number.startsWith("+2782")),
+    }),
+  );
+
+  const ports = Layer.mergeAll(
+    phoneStorage,
+    Layer.succeed(Proofs.ProofPersistence, proofServices.proofPersistence),
+    Layer.succeed(Sessions.AuthenticationAuthority, authority.authenticationAuthority),
+    Layer.succeed(phone.SessionClaims, {
+      resolve: ({ subjectId }) =>
+        database
+          .select()
+          .from(customer)
+          .where(eq(customer.customerNo, nativeSubject(subjectId)))
+          .pipe(
+            Effect.flatMap((rows) =>
+              rows[0] === undefined
+                ? Effect.fail(PhoneOtp.PhoneOtpUnavailable.make({}))
+                : Effect.succeed({
+                    customerNumber: rows[0].customerNo,
+                    segment:
+                      rows[0].segment === "wholesale"
+                        ? ("wholesale" as const)
+                        : ("retail" as const),
+                  }),
+            ),
+            Effect.mapError(() => PhoneOtp.PhoneOtpUnavailable.make({})),
+          ),
+    }),
+  );
+
+  const strategy = sessions
+    .statelessLayer(sessionPolicy)
+    .pipe(Layer.provide(Layer.succeed(Sessions.SessionSigningKeys, keyring)), Layer.provide(base));
+
+  const completion = sessions
+    .completionLayer()
+    .pipe(Layer.provide(Layer.mergeAll(ports, strategy)), Layer.provide(base));
+
+  const actionEvidence = Layer.effect(
+    PhoneOtp.PhoneActionEvidence,
+    Effect.map(sessions.SessionStrategy, (strategy) => ({
+      verify: Effect.fnUntraced(function* ({ invocation, challenge, proof }) {
+        if (invocation._tag !== "Authenticated" || proof === undefined)
+          return yield* PhoneOtp.PhoneActionRequired.make({});
+
+        const inspected = yield* strategy
+          .inspect(proof)
+          .pipe(Effect.mapError(() => PhoneOtp.PhoneActionRequired.make({})));
+
+        if (inspected.inspection.provenance.evidence.revision.subjectId !== invocation.subjectId)
+          return yield* PhoneOtp.PhoneActionRequired.make({});
+
+        const evidence = {
+          ...inspected.inspection.provenance.evidence,
+          flowId: challenge.flowId,
+          bindingDigest: challenge.bindingDigest,
+        };
+
+        const current = yield* authority.authenticationAuthority
+          .requirements(evidence)
+          .pipe(Effect.mapError(() => PhoneOtp.PhoneActionRequired.make({})));
+
+        return { evidence, requirement: current };
+      }),
+    })),
+  ).pipe(Layer.provide(strategy));
+
+  const dependencies = Layer.mergeAll(
+    ports,
+    strategy,
+    completion,
+    actionEvidence,
+    PhoneOtp.PhoneAdmission.layer(admissionPolicy),
+  ).pipe(Layer.provideMerge(base));
+
+  return yield* Effect.gen(function* () {
+    const auth = yield* shopAuth.make,
+      sessionStrategy = yield* sessions.SessionStrategy;
+
+    const commands: Operations.AuthCredentialCommand[] = [];
+
+    const collect = (items: ReadonlyArray<Operations.AuthCredentialCommand>) =>
+      Effect.sync(() => {
+        commands.push(...items);
+      });
+
+    const as = <A, E, R>(invocation: Operations.AuthInvocation, effect: Effect.Effect<A, E, R>) =>
+      effect.pipe(
+        Effect.provideService(Auth.AuthRequest, {
+          invocation,
+          credentials: {},
+          credentialCommandSink: collect,
+        }),
+        Effect.provideService(PhoneOtp.PhoneRequestContext, {
+          networkKey: Redacted.make("trusted-gateway/network-a"),
+        }),
+      );
+
+    const token = Effect.fnUntraced(function* (slot: "request-binding" | "session") {
+      const found = [...commands].reverse().find((c) => c._tag === "Issue" && c.slot === slot);
+
+      if (found?._tag !== "Issue") return yield* PhoneOtp.PhoneOtpUnavailable.make({});
+
+      return Redacted.value(found.credential);
+    });
+
+    const begin = Effect.fnUntraced(function* (
+      action: "register" | "verify" | "change",
+      number: string,
+      invocation: Operations.AuthInvocation,
+      sourcePhoneNumber?: string,
+    ) {
+      const input = {
+        action,
+        flowId: yield* crypto.randomUUIDv4().pipe(Effect.orDie),
+        requestId: yield* crypto.randomUUIDv4().pipe(Effect.orDie),
+        commandId: yield* crypto.randomUUIDv4().pipe(Effect.orDie),
+        phoneNumber: number,
+        locale: "en-ZA",
+        ...(sourcePhoneNumber === undefined ? {} : { sourcePhoneNumber }),
+      };
+
+      const challenge = yield* as(invocation, auth.begin(input));
+
+      return { input, challenge, binding: yield* token("request-binding") };
+    });
+
+    const complete = Effect.fnUntraced(function* (
+      started: Effect.Success<ReturnType<typeof begin>>,
+      invocation: Operations.AuthInvocation,
+      actionProof?: string,
+    ) {
+      const message = sent.find((m) => m.id === started.challenge.reference.proofId);
+
+      assert(message !== undefined, "controlled sender missed challenge");
+
+      return yield* as(
+        invocation,
+        auth.completeLifecycle({
+          ...started.input,
+          requestBinding: started.binding,
+          reference: started.challenge.reference,
+          code: Redacted.value(message.body),
+          ...(actionProof === undefined ? {} : { actionProof }),
+        }),
+      );
+    });
+
+    let registered = yield* begin("register", "+27820000001", Operations.guest);
+
+    const wrong = yield* as(
+      Operations.guest,
+      auth.completeLifecycle({
+        ...registered.input,
+        requestBinding: registered.binding,
+        reference: registered.challenge.reference,
+        code:
+          Redacted.value(
+            sent.find((m) => m.id === registered.challenge.reference.proofId)!.body,
+          ) === "000000"
+            ? "111111"
+            : "000000",
+      }),
+    ).pipe(Effect.result);
+
+    assert(wrong._tag === "Failure", "wrong code accepted");
+
+    const reissueInput = {
+      ...registered.input,
+      requestId: yield* crypto.randomUUIDv4().pipe(Effect.orDie),
+      requestBinding: registered.binding,
+    };
+
+    const resent = yield* as(Operations.guest, auth.begin(reissueInput));
+    const superseded = yield* complete(registered, Operations.guest).pipe(Effect.result);
+
+    assert(superseded._tag === "Failure", "superseded code accepted");
+    registered = {
+      ...registered,
+      input: { ...registered.input, requestId: reissueInput.requestId },
+      challenge: resent,
+    };
+    const registration = yield* complete(registered, Operations.guest);
+
+    assert(
+      registration._tag === "Registered" && registration.completion._tag === "Authenticated",
+      "phone registration failed",
+    );
+
+    const initialToken = yield* token("session"),
+      initial = yield* sessionStrategy
+        .inspect(Redacted.make(initialToken))
+        .pipe(Effect.map((source) => source.inspection.session));
+
+    assert(
+      initial.claims.customerNumber === nativeSubject(initial.subjectId),
+      "custom numeric claim mapping lost",
+    );
+
+    const caller = {
+      _tag: "Authenticated" as const,
+      subjectId: initial.subjectId,
+      sessionId: initial.sessionId,
+      assurance: initial.assurance,
+    };
+
+    const replay = yield* complete(registered, Operations.guest).pipe(Effect.result);
+
+    assert(replay._tag === "Failure", "registration replay accepted");
+    const verify = yield* begin("verify", "+27820000002", caller);
+    const verified = yield* complete(verify, caller, initialToken);
+
+    assert(
+      verified._tag === "Updated" &&
+        verified.invalidation.existingSessions === "original-absolute-expiry",
+      "verification invalidation mismatch",
+    );
+
+    const signIn = Effect.fn("PhoneConsumer.signIn")(function* (number: string) {
+      const challenge = yield* as(
+        Operations.guest,
+        auth.signIn({ phoneNumber: number, locale: "en-ZA" }),
+      );
+
+      const requestBinding = yield* token("request-binding"),
+        message = sent.find((m) => m.id === challenge.reference.proofId);
+
+      assert(message !== undefined, "sign-in was not delivered");
+
+      const result = yield* as(
+        Operations.guest,
+        auth.completeSignIn({
+          flowId: challenge.flowId,
+          phoneNumber: number,
+          requestBinding,
+          reference: challenge.reference,
+          code: Redacted.value(message.body),
+        }),
+      );
+
+      assert(result._tag === "Authenticated", "phone-only sign-in failed");
+      const signed = yield* token("session");
+
+      return {
+        signed,
+        session: yield* sessionStrategy
+          .inspect(Redacted.make(signed))
+          .pipe(Effect.map((source) => source.inspection.session)),
+      };
+    });
+
+    const verifiedLogin = yield* signIn("+27820000002"),
+      freshCaller = {
+        _tag: "Authenticated" as const,
+        subjectId: verifiedLogin.session.subjectId,
+        sessionId: verifiedLogin.session.sessionId,
+        assurance: verifiedLogin.session.assurance,
+      };
+
+    const change = yield* begin("change", "+27820000003", freshCaller, "+27820000002");
+    const changed = yield* complete(change, freshCaller, verifiedLogin.signed);
+
+    assert(changed._tag === "Updated", "authenticated change failed");
+    const after = yield* signIn("+27820000003");
+
+    assert(after.session.subjectId === initial.subjectId, "change changed customer identity");
+    const beforeConflict = sent.length;
+
+    yield* begin("register", "+27820000002", Operations.guest);
+    assert(sent.length === beforeConflict, "retired number was silently relinked");
+    failNext = true;
+    const failed = yield* begin("register", "+27820000004", Operations.guest);
+
+    assert(
+      !sent.some((m) => m.id === failed.challenge.reference.proofId),
+      "failed delivery created accepted message",
+    );
+
+    const old = yield* sessionStrategy
+      .inspect(Redacted.make(initialToken))
+      .pipe(Effect.map((source) => source.inspection.session));
+
+    assert(
+      old.absoluteExpiresAt.epochMilliseconds === initial.absoluteExpiresAt.epochMilliseconds,
+      "pure-stateless old session lifetime changed",
+    );
+    const rows = yield* database.select().from(identifier);
+
+    assert(
+      rows.some((r) => r.value === "+27820000002" && !r.enabled),
+      "source number still active",
+    );
+    const customers = yield* database.select().from(customer);
+
+    assert(customers.length === 1, "conflict/failure provisioned customers");
+
+    return {
+      consumer: "numeric-customer/ISO-instants/custom-claims",
+      registration: "verified",
+      verification: "verified",
+      change: "same-customer",
+      signIn: "phone-only",
+      wrongCode: "rejected",
+      resend: "single-delivery/superseded-code-rejected",
+      replay: "rejected",
+      retiredNumber: "reserved",
+      deliveryFailure: "contained",
+      sessionMode: "pure-stateless-no-session-table",
+      invalidation: "original-absolute-expiry",
+    };
+  }).pipe(Effect.provide(dependencies));
+});
+
+phoneConsumer.pipe(
+  Effect.tap(Effect.log),
+  Effect.provide(
+    Layer.mergeAll(
+      databaseLayer.pipe(Layer.provideMerge(SqliteClient.layer({ filename: ":memory:" }))),
+      Hooks.LifecycleHooks.empty,
+      WebCrypto.layerWebCrypto,
+    ),
+  ),
+  Effect.scoped,
+  BunRuntime.runMain,
+);
