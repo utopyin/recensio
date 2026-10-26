@@ -7,6 +7,7 @@
  * it assembles (`@recensio/<domain>/rpc`). No handler, no service, no
  * database: the website bundles it.
  */
+import { IdentityRpcs } from "@recensio/identity/rpc";
 import * as Schema from "effect/Schema";
 import * as Rpc from "effect/rpc/Rpc";
 import * as RpcGroup from "effect/rpc/RpcGroup";
@@ -35,4 +36,4 @@ export const SystemRpcs = RpcGroup.make(
 );
 
 /** The whole contract. A domain adds its group here with `.merge`. */
-export const Rpcs = SystemRpcs;
+export const Rpcs = SystemRpcs.merge(IdentityRpcs);

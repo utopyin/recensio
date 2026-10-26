@@ -3,4 +3,4 @@
  * A domain's module may hold several tables. Migrations are generated from
  * here, and `./relations` reads it; nothing else should import it whole.
  */
-export {};
+export * from "./identity";

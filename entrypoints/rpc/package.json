@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@recensio/db": "workspace:*",
+    "@recensio/identity": "workspace:*",
+    "@yielded/auth": "catalog:",
     "alchemy": "catalog:",
     "drizzle-orm": "catalog:",
     "effect": "catalog:"

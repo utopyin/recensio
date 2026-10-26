@@ -8,7 +8,9 @@
   },
   "dependencies": {
     "@alchemy.run/cloudflare": "catalog:",
+    "@effect/sql-pg": "catalog:",
     "@recensio/db": "workspace:*",
+    "@recensio/identity": "workspace:*",
     "@recensio/rpc": "workspace:*",
     "alchemy": "catalog:",
     "effect": "catalog:"

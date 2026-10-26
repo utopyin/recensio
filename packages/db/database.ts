@@ -1,15 +1,21 @@
 import * as Cloudflare from "@alchemy.run/cloudflare";
 import * as Docker from "@alchemy.run/docker";
-import * as Drizzle from "@alchemy.run/drizzle/Postgres";
+import { resolvePoolConfig } from "@alchemy.run/sql/PostgresTls";
+import * as PgClient from "@effect/sql-pg/PgClient";
 import * as Alchemy from "alchemy";
 import * as Command from "alchemy/Command";
 import type * as Output from "alchemy/Output";
+import { makeExecutionMemo } from "alchemy/Runtime/ExecutionMemo";
+import { proxyChain } from "alchemy/Util/proxy-chain";
+import * as PgDrizzle from "drizzle-orm/effect-postgres";
 import * as Config from "effect/Config";
+import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";
+import * as Client from "./client";
 import { relations } from "./schema/relations";
-import { Service } from "./service";
+import { type Instance, Service } from "./service";
 
 /** Local Postgres for `alchemy dev`. */
 export const LOCAL = {
@@ -143,20 +149,42 @@ export const Hyperdrive = Cloudflare.Hyperdrive.Connection(
 ).pipe(Alchemy.RemovalPolicy.retain());
 
 /**
- * `Database.Service` over that Hyperdrive, for any worker that provides it:
- * building the layer binds the Hyperdrive to the worker.
+ * `Database.Service` over that Hyperdrive, and `Client.Service` for the
+ * Postgres client under it, for any worker that provides them: building the
+ * layer binds the Hyperdrive to the worker.
  *
  * The pool is opened on the first query of a request and closed with it: a
  * workerd socket belongs to one request. Hyperdrive pools in transaction
  * mode, so named prepared statements are off.
+ *
+ * This is `Drizzle.Postgres` of `@alchemy.run/drizzle`, rebuilt from the same
+ * alchemy helpers because that one keeps the client to itself, and auth has
+ * to be handed it. The helpers are reached through alchemy's wildcard export,
+ * not a documented entry point: re-check these imports when alchemy moves.
  */
-export const layer = Layer.effect(
-  Service,
+export const layer = Layer.effectContext(
   Effect.gen(function* () {
     const connection = yield* Cloudflare.Hyperdrive.Connect(yield* Hyperdrive);
-    return yield* Drizzle.Postgres(connection.connectionString, {
-      relations,
-      client: { prepare: false },
-    });
+    const open = yield* makeExecutionMemo(
+      Effect.gen(function* () {
+        const url = yield* connection.connectionString;
+        const context = yield* Layer.build(
+          PgClient.layer(resolvePoolConfig(url, { prepare: false })),
+        );
+        const db = yield* PgDrizzle.makeWithDefaults({ relations }).pipe(
+          Effect.provideContext(context),
+        );
+        return { client: Context.get(context, PgClient.PgClient), db };
+      }).pipe(Effect.orDie),
+    );
+
+    // Each query resolves the request's pool when it runs, so services built
+    // once per isolate can hold this instance.
+    const database = proxyChain(Effect.map(open, ({ db }) => db)) as unknown as Instance;
+    // The execution scope every worker event carries is erased, as alchemy does.
+    // oxlint-disable-next-line effecttsgo/unsafe-effect-type-assertion
+    const client = Effect.map(open, (opened) => opened.client) as Client.Service["Service"];
+
+    return Context.make(Service, database).pipe(Context.add(Client.Service, client));
   }),
 ).pipe(Layer.provide(Cloudflare.Hyperdrive.ConnectBinding));

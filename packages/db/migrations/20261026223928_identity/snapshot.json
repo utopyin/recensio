@@ -1,0 +1,1573 @@
+{
+  "type": "base",
+  "version": "9",
+  "dialect": "postgres",
+  "id": "dc50ba24-421c-4ea0-926e-73adafacd8fa",
+  "prevIds": [
+    "00000000-0000-0000-0000-000000000000"
+  ],
+  "footprints": [
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "rec_auth_credentials"
+      ],
+      "writes": [
+        "s|tbl|public.rec_auth_credentials",
+        "n|tbl|public.rec_auth_credentials",
+        "e|tbl|public.rec_auth_credentials",
+        "n|rel|public.rec_auth_credentials",
+        "n|type|public.rec_auth_credentials"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "rec_auth_emailCredentials"
+      ],
+      "writes": [
+        "s|tbl|public.rec_auth_emailCredentials",
+        "n|tbl|public.rec_auth_emailCredentials",
+        "e|tbl|public.rec_auth_emailCredentials",
+        "n|rel|public.rec_auth_emailCredentials",
+        "n|type|public.rec_auth_emailCredentials"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "rec_auth_identifiers"
+      ],
+      "writes": [
+        "s|tbl|public.rec_auth_identifiers",
+        "n|tbl|public.rec_auth_identifiers",
+        "e|tbl|public.rec_auth_identifiers",
+        "n|rel|public.rec_auth_identifiers",
+        "n|type|public.rec_auth_identifiers"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "rec_auth_pending"
+      ],
+      "writes": [
+        "s|tbl|public.rec_auth_pending",
+        "n|tbl|public.rec_auth_pending",
+        "e|tbl|public.rec_auth_pending",
+        "n|rel|public.rec_auth_pending",
+        "n|type|public.rec_auth_pending"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "rec_auth_proofs"
+      ],
+      "writes": [
+        "s|tbl|public.rec_auth_proofs",
+        "n|tbl|public.rec_auth_proofs",
+        "e|tbl|public.rec_auth_proofs",
+        "n|rel|public.rec_auth_proofs",
+        "n|type|public.rec_auth_proofs"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "rec_auth_sessions"
+      ],
+      "writes": [
+        "s|tbl|public.rec_auth_sessions",
+        "n|tbl|public.rec_auth_sessions",
+        "e|tbl|public.rec_auth_sessions",
+        "n|rel|public.rec_auth_sessions",
+        "n|type|public.rec_auth_sessions"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_table",
+      "statementTarget": [
+        "table",
+        "public",
+        "rec_users"
+      ],
+      "writes": [
+        "s|tbl|public.rec_users",
+        "n|tbl|public.rec_users",
+        "e|tbl|public.rec_users",
+        "n|rel|public.rec_users",
+        "n|type|public.rec_users",
+        "n|rel|public.rec_users_pkey"
+      ],
+      "reads": [
+        "n|sch|public"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "rec_auth_credentials",
+        "rec_auth_credentials_key_0"
+      ],
+      "writes": [
+        "s|idx|public.rec_auth_credentials_key_0",
+        "n|idx|public.rec_auth_credentials_key_0",
+        "e|idx|public.rec_auth_credentials_key_0",
+        "n|rel|public.rec_auth_credentials_key_0"
+      ],
+      "reads": [
+        "n|tbl|public.rec_auth_credentials",
+        "n|sch|public",
+        "n|col|public.rec_auth_credentials.credential_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "rec_auth_credentials",
+        "rec_auth_credentials_index_0"
+      ],
+      "writes": [
+        "s|idx|public.rec_auth_credentials_index_0",
+        "n|idx|public.rec_auth_credentials_index_0",
+        "e|idx|public.rec_auth_credentials_index_0",
+        "n|rel|public.rec_auth_credentials_index_0"
+      ],
+      "reads": [
+        "n|tbl|public.rec_auth_credentials",
+        "n|sch|public",
+        "n|col|public.rec_auth_credentials.subject_id",
+        "n|col|public.rec_auth_credentials.active",
+        "n|col|public.rec_auth_credentials.credential_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "rec_auth_emailCredentials",
+        "rec_auth_emailCredentials_key_0"
+      ],
+      "writes": [
+        "s|idx|public.rec_auth_emailCredentials_key_0",
+        "n|idx|public.rec_auth_emailCredentials_key_0",
+        "e|idx|public.rec_auth_emailCredentials_key_0",
+        "n|rel|public.rec_auth_emailCredentials_key_0"
+      ],
+      "reads": [
+        "n|tbl|public.rec_auth_emailCredentials",
+        "n|sch|public",
+        "n|col|public.rec_auth_emailCredentials.module_id",
+        "n|col|public.rec_auth_emailCredentials.credential_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "rec_auth_emailCredentials",
+        "rec_auth_emailCredentials_key_1"
+      ],
+      "writes": [
+        "s|idx|public.rec_auth_emailCredentials_key_1",
+        "n|idx|public.rec_auth_emailCredentials_key_1",
+        "e|idx|public.rec_auth_emailCredentials_key_1",
+        "n|rel|public.rec_auth_emailCredentials_key_1"
+      ],
+      "reads": [
+        "n|tbl|public.rec_auth_emailCredentials",
+        "n|sch|public",
+        "n|col|public.rec_auth_emailCredentials.module_id",
+        "n|col|public.rec_auth_emailCredentials.identifier_namespace",
+        "n|col|public.rec_auth_emailCredentials.identifier_value"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "rec_auth_identifiers",
+        "rec_auth_identifiers_key_0"
+      ],
+      "writes": [
+        "s|idx|public.rec_auth_identifiers_key_0",
+        "n|idx|public.rec_auth_identifiers_key_0",
+        "e|idx|public.rec_auth_identifiers_key_0",
+        "n|rel|public.rec_auth_identifiers_key_0"
+      ],
+      "reads": [
+        "n|tbl|public.rec_auth_identifiers",
+        "n|sch|public",
+        "n|col|public.rec_auth_identifiers.namespace",
+        "n|col|public.rec_auth_identifiers.value"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "rec_auth_identifiers",
+        "rec_auth_identifiers_index_0"
+      ],
+      "writes": [
+        "s|idx|public.rec_auth_identifiers_index_0",
+        "n|idx|public.rec_auth_identifiers_index_0",
+        "e|idx|public.rec_auth_identifiers_index_0",
+        "n|rel|public.rec_auth_identifiers_index_0"
+      ],
+      "reads": [
+        "n|tbl|public.rec_auth_identifiers",
+        "n|sch|public",
+        "n|col|public.rec_auth_identifiers.subject_id",
+        "n|col|public.rec_auth_identifiers.namespace",
+        "n|col|public.rec_auth_identifiers.value"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "rec_auth_pending",
+        "rec_auth_pending_key_0"
+      ],
+      "writes": [
+        "s|idx|public.rec_auth_pending_key_0",
+        "n|idx|public.rec_auth_pending_key_0",
+        "e|idx|public.rec_auth_pending_key_0",
+        "n|rel|public.rec_auth_pending_key_0"
+      ],
+      "reads": [
+        "n|tbl|public.rec_auth_pending",
+        "n|sch|public",
+        "n|col|public.rec_auth_pending.digest"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "rec_auth_pending",
+        "rec_auth_pending_index_0"
+      ],
+      "writes": [
+        "s|idx|public.rec_auth_pending_index_0",
+        "n|idx|public.rec_auth_pending_index_0",
+        "e|idx|public.rec_auth_pending_index_0",
+        "n|rel|public.rec_auth_pending_index_0"
+      ],
+      "reads": [
+        "n|tbl|public.rec_auth_pending",
+        "n|sch|public",
+        "n|col|public.rec_auth_pending.module_id",
+        "n|col|public.rec_auth_pending.expires_at",
+        "n|col|public.rec_auth_pending.digest"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "rec_auth_proofs",
+        "rec_auth_proofs_key_0"
+      ],
+      "writes": [
+        "s|idx|public.rec_auth_proofs_key_0",
+        "n|idx|public.rec_auth_proofs_key_0",
+        "e|idx|public.rec_auth_proofs_key_0",
+        "n|rel|public.rec_auth_proofs_key_0"
+      ],
+      "reads": [
+        "n|tbl|public.rec_auth_proofs",
+        "n|sch|public",
+        "n|col|public.rec_auth_proofs.module_id",
+        "n|col|public.rec_auth_proofs.purpose",
+        "n|col|public.rec_auth_proofs.series_key"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "rec_auth_proofs",
+        "rec_auth_proofs_key_1"
+      ],
+      "writes": [
+        "s|idx|public.rec_auth_proofs_key_1",
+        "n|idx|public.rec_auth_proofs_key_1",
+        "e|idx|public.rec_auth_proofs_key_1",
+        "n|rel|public.rec_auth_proofs_key_1"
+      ],
+      "reads": [
+        "n|tbl|public.rec_auth_proofs",
+        "n|sch|public",
+        "n|col|public.rec_auth_proofs.module_id",
+        "n|col|public.rec_auth_proofs.proof_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "rec_auth_sessions",
+        "rec_auth_sessions_key_0"
+      ],
+      "writes": [
+        "s|idx|public.rec_auth_sessions_key_0",
+        "n|idx|public.rec_auth_sessions_key_0",
+        "e|idx|public.rec_auth_sessions_key_0",
+        "n|rel|public.rec_auth_sessions_key_0"
+      ],
+      "reads": [
+        "n|tbl|public.rec_auth_sessions",
+        "n|sch|public",
+        "n|col|public.rec_auth_sessions.session_id"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "rec_auth_sessions",
+        "rec_auth_sessions_key_1"
+      ],
+      "writes": [
+        "s|idx|public.rec_auth_sessions_key_1",
+        "n|idx|public.rec_auth_sessions_key_1",
+        "e|idx|public.rec_auth_sessions_key_1",
+        "n|rel|public.rec_auth_sessions_key_1"
+      ],
+      "reads": [
+        "n|tbl|public.rec_auth_sessions",
+        "n|sch|public",
+        "n|col|public.rec_auth_sessions.digest"
+      ]
+    },
+    {
+      "statementType": "create_index",
+      "statementTarget": [
+        "index",
+        "public",
+        "rec_auth_sessions",
+        "rec_auth_sessions_index_0"
+      ],
+      "writes": [
+        "s|idx|public.rec_auth_sessions_index_0",
+        "n|idx|public.rec_auth_sessions_index_0",
+        "e|idx|public.rec_auth_sessions_index_0",
+        "n|rel|public.rec_auth_sessions_index_0"
+      ],
+      "reads": [
+        "n|tbl|public.rec_auth_sessions",
+        "n|sch|public",
+        "n|col|public.rec_auth_sessions.subject_id",
+        "n|col|public.rec_auth_sessions.security_revision",
+        "n|col|public.rec_auth_sessions.session_id"
+      ]
+    }
+  ],
+  "ddl": [
+    {
+      "schema": "public",
+      "name": "rec_auth_credentials",
+      "isRlsEnabled": false,
+      "entityType": "tables"
+    },
+    {
+      "schema": "public",
+      "name": "rec_auth_emailCredentials",
+      "isRlsEnabled": false,
+      "entityType": "tables"
+    },
+    {
+      "schema": "public",
+      "name": "rec_auth_identifiers",
+      "isRlsEnabled": false,
+      "entityType": "tables"
+    },
+    {
+      "schema": "public",
+      "name": "rec_auth_pending",
+      "isRlsEnabled": false,
+      "entityType": "tables"
+    },
+    {
+      "schema": "public",
+      "name": "rec_auth_proofs",
+      "isRlsEnabled": false,
+      "entityType": "tables"
+    },
+    {
+      "schema": "public",
+      "name": "rec_auth_sessions",
+      "isRlsEnabled": false,
+      "entityType": "tables"
+    },
+    {
+      "schema": "public",
+      "name": "rec_users",
+      "isRlsEnabled": false,
+      "entityType": "tables"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_credentials",
+      "name": "credential_id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_credentials",
+      "name": "subject_id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_credentials",
+      "name": "revision",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_credentials",
+      "name": "active",
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_emailCredentials",
+      "name": "module_id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_emailCredentials",
+      "name": "subject_id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_emailCredentials",
+      "name": "credential_id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_emailCredentials",
+      "name": "identifier_namespace",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_emailCredentials",
+      "name": "identifier_value",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_emailCredentials",
+      "name": "credential_revision",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_emailCredentials",
+      "name": "active",
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_identifiers",
+      "name": "namespace",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_identifiers",
+      "name": "value",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_identifiers",
+      "name": "module_id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_identifiers",
+      "name": "credential_id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_identifiers",
+      "name": "subject_id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_identifiers",
+      "name": "revision",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_identifiers",
+      "name": "verified_at",
+      "type": "bigint",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_identifiers",
+      "name": "active",
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_pending",
+      "name": "module_id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_pending",
+      "name": "kind",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_pending",
+      "name": "digest",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_pending",
+      "name": "version",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_pending",
+      "name": "flow_id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_pending",
+      "name": "subject_id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_pending",
+      "name": "binding_digest",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_pending",
+      "name": "snapshot",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_pending",
+      "name": "expires_at",
+      "type": "bigint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_pending",
+      "name": "attempt_limit",
+      "type": "bigint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_pending",
+      "name": "failed_attempts",
+      "type": "bigint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_pending",
+      "name": "consumed",
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_proofs",
+      "name": "module_id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_proofs",
+      "name": "purpose",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_proofs",
+      "name": "series_key",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_proofs",
+      "name": "proof_id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_proofs",
+      "name": "binding",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_proofs",
+      "name": "verifier_key_id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_proofs",
+      "name": "verifier_digest",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_proofs",
+      "name": "issued_at",
+      "type": "bigint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_proofs",
+      "name": "expires_at",
+      "type": "bigint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_proofs",
+      "name": "failed_attempts",
+      "type": "bigint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_sessions",
+      "name": "session_id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_sessions",
+      "name": "subject_id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_sessions",
+      "name": "digest",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_sessions",
+      "name": "security_revision",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_sessions",
+      "name": "issued_at",
+      "type": "bigint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_sessions",
+      "name": "expires_at",
+      "type": "bigint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_sessions",
+      "name": "absolute_expires_at",
+      "type": "bigint",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_sessions",
+      "name": "record",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_users",
+      "name": "id",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_users",
+      "name": "enabled",
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "true",
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_users",
+      "name": "security_revision",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_users",
+      "name": "email",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_users",
+      "name": "name",
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_users",
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_users",
+      "name": "confirmed_at",
+      "type": "timestamp with time zone",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "entityType": "columns"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_credentials",
+      "name": "rec_auth_credentials_key_0",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "credential_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": true,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_credentials",
+      "name": "rec_auth_credentials_index_0",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "subject_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "active",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "credential_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_emailCredentials",
+      "name": "rec_auth_emailCredentials_key_0",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "module_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "credential_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": true,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_emailCredentials",
+      "name": "rec_auth_emailCredentials_key_1",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "module_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "identifier_namespace",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "identifier_value",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": true,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_identifiers",
+      "name": "rec_auth_identifiers_key_0",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "namespace",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "value",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": true,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_identifiers",
+      "name": "rec_auth_identifiers_index_0",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "subject_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "namespace",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "value",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_pending",
+      "name": "rec_auth_pending_key_0",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "digest",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": true,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_pending",
+      "name": "rec_auth_pending_index_0",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "module_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "expires_at",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "digest",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_proofs",
+      "name": "rec_auth_proofs_key_0",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "module_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "purpose",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "series_key",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": true,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_proofs",
+      "name": "rec_auth_proofs_key_1",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "module_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "proof_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": true,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_sessions",
+      "name": "rec_auth_sessions_key_0",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "session_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": true,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_sessions",
+      "name": "rec_auth_sessions_key_1",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "digest",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": true,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "rec_auth_sessions",
+      "name": "rec_auth_sessions_index_0",
+      "nameExplicit": true,
+      "columns": [
+        {
+          "value": "subject_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "security_revision",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        },
+        {
+          "value": "session_id",
+          "isExpression": false,
+          "asc": true,
+          "nullsFirst": false,
+          "opclass": null
+        }
+      ],
+      "isUnique": false,
+      "where": null,
+      "with": "",
+      "method": "btree",
+      "concurrently": false,
+      "entityType": "indexes"
+    },
+    {
+      "schema": "public",
+      "table": "rec_users",
+      "name": "rec_users_pkey",
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "entityType": "pks"
+    }
+  ]
+}

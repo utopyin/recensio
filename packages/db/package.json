@@ -8,7 +8,9 @@
     "./table": "./table.ts",
     "./service": "./service.ts",
     "./database": "./database.ts",
-    "./schema/*": "./schema/*.ts"
+    "./schema/*": "./schema/*.ts",
+    "./auth": "./auth.ts",
+    "./client": "./client.ts"
   },
   "scripts": {
     "check:types": "tsc",
@@ -20,8 +22,11 @@
     "@alchemy.run/cloudflare": "catalog:",
     "@alchemy.run/docker": "catalog:",
     "@alchemy.run/drizzle": "catalog:",
+    "@alchemy.run/sql": "catalog:",
     "@effect/platform-bun": "catalog:",
     "@effect/sql-pg": "catalog:",
+    "@yielded/auth": "catalog:",
+    "@yielded/auth-persistence-drizzle": "catalog:",
     "alchemy": "catalog:",
     "drizzle-orm": "catalog:",
     "effect": "catalog:",

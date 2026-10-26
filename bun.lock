@@ -27,7 +27,9 @@
       "version": "0.0.0",
       "dependencies": {
         "@alchemy.run/cloudflare": "catalog:",
+        "@effect/sql-pg": "catalog:",
         "@recensio/db": "workspace:*",
+        "@recensio/identity": "workspace:*",
         "@recensio/rpc": "workspace:*",
         "alchemy": "catalog:",
         "effect": "catalog:",
@@ -62,11 +64,29 @@
         "vite": "^8.3.5",
       },
     },
+    "domains/identity": {
+      "name": "@recensio/identity",
+      "version": "0.0.0",
+      "dependencies": {
+        "@recensio/db": "workspace:*",
+        "@yielded/auth": "catalog:",
+        "@yielded/auth-persistence": "catalog:",
+        "@yielded/auth-persistence-drizzle": "catalog:",
+        "drizzle-orm": "catalog:",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@cloudflare/workers-types": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "entrypoints/rpc": {
       "name": "@recensio/rpc",
       "version": "0.0.0",
       "dependencies": {
         "@recensio/db": "workspace:*",
+        "@recensio/identity": "workspace:*",
+        "@yielded/auth": "catalog:",
         "alchemy": "catalog:",
         "drizzle-orm": "catalog:",
         "effect": "catalog:",
@@ -83,8 +103,11 @@
         "@alchemy.run/cloudflare": "catalog:",
         "@alchemy.run/docker": "catalog:",
         "@alchemy.run/drizzle": "catalog:",
+        "@alchemy.run/sql": "catalog:",
         "@effect/platform-bun": "catalog:",
         "@effect/sql-pg": "catalog:",
+        "@yielded/auth": "catalog:",
+        "@yielded/auth-persistence-drizzle": "catalog:",
         "alchemy": "catalog:",
         "drizzle-orm": "catalog:",
         "effect": "catalog:",
@@ -142,6 +165,7 @@
     "@alchemy.run/cloudflare": "2.0.0-beta.84",
     "@alchemy.run/docker": "2.0.0-beta.84",
     "@alchemy.run/drizzle": "2.0.0-beta.84",
+    "@alchemy.run/sql": "2.0.0-beta.84",
     "@cloudflare/workers-types": "^5.20261026.1",
     "@effect/atom-react": "4.0.6",
     "@effect/platform-bun": "4.0.6",
@@ -151,6 +175,9 @@
     "@types/pg": "^8.23.1",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "@yielded/auth": "0.1.0-beta.46",
+    "@yielded/auth-persistence": "0.1.0-beta.46",
+    "@yielded/auth-persistence-drizzle": "0.1.0-beta.46",
     "alchemy": "2.0.0-beta.84",
     "drizzle-kit": "1.0.0-rc.5",
     "drizzle-orm": "1.0.0-rc.5",
@@ -487,6 +514,8 @@
 
     "@recensio/db": ["@recensio/db@workspace:packages/db"],
 
+    "@recensio/identity": ["@recensio/identity@workspace:domains/identity"],
+
     "@recensio/rpc": ["@recensio/rpc@workspace:entrypoints/rpc"],
 
     "@recensio/scripts": ["@recensio/scripts@workspace:scripts"],
@@ -682,6 +711,18 @@
     "@typescript/typescript-win32-x64": ["@typescript/typescript-win32-x64@7.0.2", "", { "os": "win32", "cpu": "x64" }, "sha512-0BQ3HkAHHlKLSp1qRvf3SUhGpGsDuhB/jgFw75guyqbxJqEaS0Cw/VFO8i2nHglJUzQCRtMMR/IBAKE3ETMC4g=="],
 
     "@vitejs/plugin-react": ["@vitejs/plugin-react@6.1.2", "", { "dependencies": { "@rolldown/pluginutils": "^1.0.1" }, "peerDependencies": { "@rolldown/plugin-babel": "^0.1.7 || ^0.2.0", "babel-plugin-react-compiler": "^1.0.0", "oxc-transform-react": "^0.152.0", "vite": "^8.0.0" }, "optionalPeers": ["@rolldown/plugin-babel", "babel-plugin-react-compiler", "oxc-transform-react"] }, "sha512-fhJNGUdscQa4HkI0xFxwonWyhnVReCPDbXI7FH7jmzpnVCrFQI7PRrhWecO263610vOrs9tr2Y4xcf8uAdFxbw=="],
+
+    "@yielded/auth": ["@yielded/auth@0.1.0-beta.46", "", { "dependencies": { "@yielded/crypto": "0.1.0-beta.46", "@yielded/jose": "0.1.0-beta.46", "@yielded/oauth": "0.1.0-beta.46" }, "peerDependencies": { "effect": "^4.0.3" } }, "sha512-l89/0Gu5LX/1kRQAVRE60J0W9aQSuYwgClrqAkO5doODlFlTrIAt3GDWO4Cg79Zre4Rm1BWt+RuT/cMW43wn/A=="],
+
+    "@yielded/auth-persistence": ["@yielded/auth-persistence@0.1.0-beta.46", "", { "dependencies": { "@yielded/auth": "0.1.0-beta.46", "@yielded/crypto": "0.1.0-beta.46" }, "peerDependencies": { "effect": "^4.0.3" } }, "sha512-60ada8qelAKXyB8A9BIJteB784vSnJYeXY2GFPoQHYfuk2HkQPjVAOjPYJ/GKewpQD66cwZat+UEKxXMJ1HjjQ=="],
+
+    "@yielded/auth-persistence-drizzle": ["@yielded/auth-persistence-drizzle@0.1.0-beta.46", "", { "dependencies": { "@yielded/auth": "0.1.0-beta.46", "@yielded/auth-persistence": "0.1.0-beta.46" }, "peerDependencies": { "@effect/sql-d1": ">=4.0.0", "@effect/sql-libsql": ">=4.0.0", "@effect/sql-mysql2": ">=4.0.0", "@effect/sql-pg": ">=4.0.0", "@effect/sql-pglite": ">=4.0.0", "@effect/sql-sqlite-bun": ">=4.0.0", "@effect/sql-sqlite-do": ">=4.0.0", "@effect/sql-sqlite-node": ">=4.0.0", "@effect/sql-sqlite-wasm": ">=4.0.0", "drizzle-orm": ">=1.0.0-rc.5", "effect": "^4.0.3" }, "optionalPeers": ["@effect/sql-d1", "@effect/sql-libsql", "@effect/sql-mysql2", "@effect/sql-pg", "@effect/sql-pglite", "@effect/sql-sqlite-bun", "@effect/sql-sqlite-do", "@effect/sql-sqlite-node", "@effect/sql-sqlite-wasm"] }, "sha512-NgMcEwsj6JG1pRWR23ZJc/82JVp27MEzGzRs+SRCyslqGH1VLR5xjOKqEUfESv6uk1nyUtTV/TCoHvFGFCxnaw=="],
+
+    "@yielded/crypto": ["@yielded/crypto@0.1.0-beta.46", "", { "peerDependencies": { "effect": "^4.0.3" } }, "sha512-7S2jUzC9znjMCJqsNB2iPAmxyCH5TkSABMbmR8p8/RvJ1ARlMULg4HC5tlQYUs7gcG20s5MosjVFPsl4NQXBwA=="],
+
+    "@yielded/jose": ["@yielded/jose@0.1.0-beta.46", "", { "dependencies": { "@yielded/crypto": "0.1.0-beta.46" }, "peerDependencies": { "effect": "^4.0.3" } }, "sha512-qoON8svDiVWxpX1GN9QxbdMxTkzf8VhSXcrRiNIvi9WuMs7h5SMq5bfgrNIA6DQSly7+jaXxepObdl73Tr6ZFA=="],
+
+    "@yielded/oauth": ["@yielded/oauth@0.1.0-beta.46", "", { "dependencies": { "@yielded/jose": "0.1.0-beta.46" }, "peerDependencies": { "effect": "^4.0.3" } }, "sha512-Z//WkyO8qFhkeJeqWcDSyqM1zU41nXtOWLKDZ6khVMDtMIl2uLav3NuB8f1aFKxpZJitnf6OnInLIY7tXXhNKQ=="],
 
     "accepts": ["accepts@2.0.0", "", { "dependencies": { "mime-types": "^3.0.0", "negotiator": "^1.0.0" } }, "sha512-5cvg6CtKwfgdmVqY1WIiXKc3Q1bkRqGLi+2W/6ao+6Y7gu/RCwRuAhGEzh5B4KlszSuTLgZYuqFqo5bImjNKng=="],
 
