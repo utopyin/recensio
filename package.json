@@ -48,6 +48,7 @@
     "prepare": "effect-tsgo patch --oxlint",
     "deploy": "alchemy deploy --stage prod --env-file .env.deploy",
     "destroy": "alchemy destroy --stage prod --env-file .env.deploy",
+    "trigger:deploy": "git commit --allow-empty -m 'trigger: deploy prod'",
     "db:generate": "bun run --cwd packages/db generate",
     "db:migrate": "bun run --cwd packages/db migrate",
     "db:studio": "bun run --cwd packages/db studio"
