@@ -34,9 +34,3 @@ This project vendors external repositories under `repos/` as `git subtree`s, squ
 When the catalog moves, move the subtree with it (`git subtree pull --prefix=repos/<name> <url> <tag> --squash`):
 
 Use `repos/` for examples of idiomatic usage of Alchemy@2, Effect@4, Drizzle@2, tests, module structure, and API design. Treat it as the source of truth for Effect patterns.
-
-## Patched dependencies
-
-`patches/` holds `bun patch` fixes for upstream bugs, listed in `patchedDependencies` in the root `package.json`. Each says why in a `Patched (recensio)` comment. Drop the patch when the version that fixes it lands, and check it still applies whenever the package moves.
-
-- `@alchemy.run/cloudflare` (`src/Workers/ViteChild.ts`): under Bun, alchemy loads its `src/*.ts` even from `node_modules`. When `node` is on the PATH, `alchemy dev` starts the website's Vite server in a Node child and hands it the `.ts` runner, which Node cannot load from `node_modules`. Without the patch, the website never starts under `alchemy dev`. The patch hands the child the built `lib/*.js` runner.
