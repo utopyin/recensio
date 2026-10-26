@@ -1,0 +1,29 @@
+# dependencies
+node_modules
+
+# misc
+.DS_Store
+*.pem
+
+# local env files
+.env
+.env.*
+!.env.example
+
+# typescript
+*.tsbuildinfo
+
+# turbo
+.turbo
+
+# cloudflare
+.dev.vars
+.dev.vars.local
+.wrangler
+worker-configuration.d.ts
+
+# alchemy
+.alchemy
+
+# agent worktrees
+.claude/worktrees/
