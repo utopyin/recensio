@@ -34,6 +34,8 @@ export default class Api extends Cloudflare.Worker<Api>()(
   "Api",
   {
     main: import.meta.url,
+    // No public URL: only the website reaches the API, over its service binding.
+    workersDev: false,
   },
   Effect.gen(function* () {
     const db = yield* Database.Service;

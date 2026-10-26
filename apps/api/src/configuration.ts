@@ -26,11 +26,11 @@ export const configuration = Effect.gen(function* () {
     proofKey: yield* secret("AUTH_PROOF_KEY", DEV_KEYS.proof),
     bindingKey: yield* secret("AUTH_BINDING_KEY", DEV_KEYS.binding),
   };
-  // Where browsers reach the website: the only origin auth trusts. A deploy
-  // must say it. `alchemy dev` serves the website on whichever port is free,
-  // so there it is the origin the request came through, which the website
-  // forwards untouched.
-  const site = dev ? Option.none() : Option.some(yield* Config.String("SITE_ORIGIN"));
+  // Where browsers reach the website: the only origin auth trusts. On a
+  // deploy, the domain the stack serves the website on (`alchemy.run.ts`).
+  // `alchemy dev` serves the website on whichever port is free, so there it is
+  // the origin the request came through, which the website forwards untouched.
+  const site = dev ? Option.none() : Option.some(`https://${yield* Config.String("SITE_DOMAIN")}`);
 
   return {
     /** The settings to serve the request at `url` with. A deploy never reads `url`. */

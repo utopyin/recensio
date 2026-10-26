@@ -2,16 +2,26 @@ import * as Cloudflare from "@alchemy.run/cloudflare";
 import * as Docker from "@alchemy.run/docker";
 import * as Alchemy from "alchemy";
 import * as Command from "alchemy/Command";
+import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import Api from "./apps/api/src/index";
 import { Hyperdrive, Studio } from "@recensio/db/database";
 
-/** The website: TanStack Start, with the API worker bound as `API`. */
-export const Website = Cloudflare.Website.Vite("Website", {
-  rootDir: "apps/web",
-  env: { API: Api },
-});
+/**
+ * The website: TanStack Start, with the API worker bound as `API`. A deploy
+ * serves it on `SITE_DOMAIN` only: auth trusts that one origin (see
+ * `apps/api/src/configuration.ts`), so a `workers.dev` URL would serve pages
+ * nobody could sign in on.
+ */
+export const Website = Cloudflare.Website.Vite(
+  "Website",
+  Effect.gen(function* () {
+    const site = { rootDir: "apps/web", env: { API: Api } };
+    if (yield* Alchemy.ALCHEMY_DEV) return site;
+    return { ...site, domain: yield* Config.String("SITE_DOMAIN"), workersDev: false };
+  }).pipe(Effect.orDie),
+);
 
 export type WebsiteEnv = Cloudflare.InferEnv<typeof Website>;
 
