@@ -1,0 +1,159 @@
+---
+title: Database and backend choices
+description: Keep your account model. Use managed auth tables, map an existing SQL schema, or supply Effect services for another backend.
+---
+
+import StorageLadder from "../../../components/StorageLadder.astro";
+import { TableMap } from "@yielded/starlight-theme/components";
+
+Your account model belongs to your application. A subject can be a row in your
+existing customer table or an identity managed by another service. Yielded Auth
+needs ways to look up that identity and durably store credentials, proofs, and
+sessions; core does not require an ORM or a particular database.
+
+Choose how to provide those services:
+
+| Start with                          | When it fits                                                               |
+| ----------------------------------- | -------------------------------------------------------------------------- |
+| [Managed tables](#managed-tables)   | You want auth storage supplied alongside your account table.               |
+| [Your schema](#your-schema)         | You already own SQL tables and migrations.                                 |
+| [Your services](#your-services)     | Your backend needs a custom store or transaction model.                    |
+| [In-memory tests](#in-memory-tests) | You need seeded password sign-in and stateful sessions without a database. |
+
+Replacing storage Layers keeps your contract, `AppAuth`, and client unchanged.
+
+<StorageLadder />
+
+## Managed tables
+
+Map your account table and let Yielded Auth define the rest:
+
+```ts title="apps/server/schema.ts"
+import { Schema as AuthSchema } from "@yielded/auth";
+import { AuthPersistence } from "@yielded/auth-persistence-drizzle/SqliteBun";
+import { Effect } from "effect";
+
+import { AppAuth, requirement } from "./auth";
+import { customers } from "./customers";
+
+export const Persistence = AuthPersistence.make(AppAuth);
+
+export const storage = Persistence.managed({
+  subjects: {
+    table: customers,
+    id: "id",
+    status: "enabled",
+    activeValue: true,
+    securityRevision: "securityRevision",
+    idCodec: AuthSchema.SubjectId,
+    requirements: () => Effect.succeed(requirement),
+  },
+  prefix: "customer_auth",
+});
+
+export const authSchema = storage.schema;
+```
+
+<TableMap
+  table="customers"
+  columns={[
+    { name: "customer_key", role: "subject ID" },
+    { name: "enabled", role: "active flag" },
+    { name: "auth_revision", role: "security revision" },
+    { name: "display_name" },
+  ]}
+  link="subject_id"
+  managed={[
+    "customer_auth_identifiers",
+    "customer_auth_passwords",
+    "customer_auth_sessions",
+    "customer_auth_pending",
+    "customer_auth_passkeyCredentials",
+  ]}
+  more="Additional tables depend on the installed methods"
+/>
+
+Only the methods you install add tables. Export them from `authSchema` for Drizzle
+Kit, then review and apply the generated migrations, including the non-unique
+indexes for subject lookups, session inventory, and pending expiry. These indexes
+trade additional storage and write work for faster lookups. Keep `prefix` stable: it names
+physical tables. To give a table your own layout, pass it in `tables`; the rest
+stay managed. The [managed app](https://github.com/yielded-dev/auth/tree/main/examples/persistence-drizzle-managed)
+shows schema exports, migrations, and Layer wiring.
+
+For Cloudflare D1, import `AuthPersistence` from
+`@yielded/auth-persistence-drizzle/D1` and provide `D1Client.layer({ db: env.DB })`.
+See [D1 composition](../reference/adapters.md#managed-d1) for migrations and batch
+constraints.
+
+With `PhoneOtp.make({ lifecycle: true })` and `Sessions.stateful()`, managed or
+mapped storage also supports account signup and phone number updates. Supply
+account values through `Persistence.Provisioning`; see the
+[phone lifecycle guide](./phone).
+
+## Your schema
+
+Declare your tables and connect them with `Persistence.map({ subjects, tables })`.
+TypeScript requires a table for every storage role your installed methods use.
+The library supplies auth operations; you own physical names, column codecs, and
+migrations. See the [custom Drizzle mapping](https://github.com/yielded-dev/auth/blob/main/examples/persistence-drizzle-custom/src/schema.ts).
+
+The same `Persistence.map` works without Drizzle. Import `AuthPersistence` from
+`@yielded/auth-persistence`, describe the tables for Effect SQL, and write the DDL
+yourself. The [Effect SQL app](https://github.com/yielded-dev/auth/tree/main/examples/persistence-sql)
+runs on SQLite and PostgreSQL. Keep mapped subject IDs canonical and allow the
+adapter to validate the database's columns and unique keys; see
+[mapping requirements](../reference/adapters#sql-session-verification).
+For Workers, share `WorkerdServices` across requests and build auth and persistence
+with [one SQL client per request](../reference/adapters#workers-and-request-scoped-sql).
+
+OAuth sign-in and retained provider access use the same managed or mapped composition.
+Applications with custom registration, login linking, or SQL authorization predicates
+can use the explicit [`OAuthPersistence` factories](../reference/adapters#oauth).
+Coordinated auth and application writes share the same Effect SQL transaction owner,
+including for Kysely-owned tables.
+
+## Your services
+
+Each storage role is a public service, such as `Password.PasswordPersistence`.
+Implement it in your own Layer; auth calls it through Effect without knowing
+whether it uses SQL. The [custom services app](https://github.com/yielded-dev/auth/tree/main/examples/persistence-custom)
+uses a single-writer file store and no persistence package. It supports one
+process on a local filesystem, not replicated storage.
+
+### What a custom backend must guarantee
+
+Storage services describe workflow commits, not just CRUD. Recheck account and
+credential authority and consume proofs with protected changes in the same commit.
+Release private credentials and lifecycle events only after the owner commits.
+Replay is available only where a workflow retains its original decision.
+
+Choose a transaction or batch owner that can uphold those contracts. Independent
+backends do not make account and credential writes atomic. An uncertain commit
+requires reconciliation, not another credential issuance. See the
+[adapter reference](../reference/adapters) for supported transaction boundaries.
+
+## In-memory tests
+
+For an Auth definition with one sign-in-only `Password.make()` strategy and
+`Sessions.stateful()`, provide `Testing.layer(AppAuth, { subjects, requirement })`
+from `@yielded/auth-persistence/Testing`. Each acquisition starts with your seed
+subjects and discards its state when the scope closes. This storage is only for tests.
+
+`Testing.services()` supplies portable crypto and real password hashing using
+WebCrypto. Its optional `seed` makes credentials reproducible; omit it for secure
+randomness. Provide these services to both Auth and persistence, and supply your
+claims and private credential delivery.
+
+Both Layers use the caller's clock, so `TestClock.adjust` controls expiry in Effect
+tests. The [consumer test](https://github.com/yielded-dev/auth/blob/main/examples/auth/test/in-memory.test.ts)
+shows complete wiring. See the [testing reference](../reference/adapters#in-memory-testing)
+for options and supported operations.
+
+## Run each level
+
+The [four example apps](/auth/guide/examples/#run-an-account-app) implement the
+same account features with managed Drizzle, custom Drizzle, Effect SQL, and
+custom services. Compare their `schema.ts` and `live.ts` files to see what changes.
+The [driver reference](../reference/adapters#choose-a-driver) lists the maintained
+SQL adapters and their constraints.

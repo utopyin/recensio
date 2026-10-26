@@ -1,0 +1,28 @@
+import type * as Shared from "@yielded/auth-persistence/Adapter";
+import type { SQL, Table } from "drizzle-orm";
+
+import type { ClockMapping, MappedClock } from "./native-clock";
+import type { DrizzleTableModel } from "./table-model";
+
+export {
+  type RequiredProofConstraints,
+  requiredProofConstraints,
+} from "@yielded/auth-persistence/Adapter";
+
+export type ProofTable<Proof extends Table> = Shared.ProofTable<DrizzleTableModel<Proof>>;
+export type ProofClock = MappedClock;
+
+export type ProofPersistenceMapping<
+  Proof extends Table,
+  Subject extends Table,
+  NativeSubjectId,
+> = ClockMapping<
+  Shared.ProofPersistenceMapping<
+    DrizzleTableModel<Proof>,
+    DrizzleTableModel<Subject>,
+    NativeSubjectId,
+    SQL
+  >
+>;
+
+export type AnyProofPersistenceMapping = ProofPersistenceMapping<Table, Table, unknown>;

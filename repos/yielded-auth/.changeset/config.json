@@ -1,0 +1,33 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@4.0.1/schema.json",
+  "changelog": [
+    "@changesets/changelog-github",
+    {
+      "repo": "yielded-dev/auth"
+    }
+  ],
+  "commit": false,
+  "format": "oxfmt",
+  "fixed": [
+    [
+      "@yielded/auth",
+      "@yielded/auth-electron",
+      "@yielded/auth-persistence",
+      "@yielded/auth-persistence-drizzle",
+      "@yielded/auth-react-native",
+      "@yielded/auth-simplewebauthn",
+      "@yielded/crypto",
+      "@yielded/jose",
+      "@yielded/oauth"
+    ]
+  ],
+  "linked": [],
+  "access": "public",
+  "baseBranch": "main",
+  "privatePackages": {
+    "version": false,
+    "tag": false
+  },
+  "updateInternalDependencies": "patch",
+  "ignore": []
+}

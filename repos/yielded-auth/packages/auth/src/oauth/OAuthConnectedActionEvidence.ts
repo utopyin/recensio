@@ -1,0 +1,32 @@
+import * as Context from "effect/Context";
+import type * as Effect from "effect/Effect";
+import type * as Redacted from "effect/Redacted";
+
+import type { AuthInvocation } from "../operations/context";
+import type { AuthenticationEvidence, AuthenticationRequirement } from "../sessions/models";
+import type { OAuthActionSource } from "./accountsModels";
+import type {
+  OAuthConnectedActionChallenge,
+  OAuthConnectedActionRequired,
+} from "./connectedModels";
+import type { OAuthUnavailable } from "./signInErrors";
+
+/** Independent exact-action authority. Consume one-time evidence before returning;
+ * later connected CAS loss does not refund it. No session-summary default. */
+export class OAuthConnectedActionEvidence extends Context.Service<
+  OAuthConnectedActionEvidence,
+  {
+    readonly verify: (input: {
+      readonly invocation: AuthInvocation;
+      readonly challenge: OAuthConnectedActionChallenge;
+      readonly proof?: Redacted.Redacted<string>;
+    }) => Effect.Effect<
+      {
+        readonly source: OAuthActionSource;
+        readonly evidence: AuthenticationEvidence;
+        readonly requirement: AuthenticationRequirement;
+      },
+      OAuthConnectedActionRequired | OAuthUnavailable
+    >;
+  }
+>()("effect-auth/OAuthConnectedActionEvidence") {}
