@@ -1,0 +1,8 @@
+{
+  "$schema": "../../node_modules/@effect/tsgo/schema.json",
+  "extends": "../../tsconfig.json",
+  "include": ["src/**/*.ts", "*.ts"],
+  "compilerOptions": {
+    "types": ["@cloudflare/workers-types"]
+  }
+}

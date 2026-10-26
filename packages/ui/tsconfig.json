@@ -1,0 +1,15 @@
+{
+  "$schema": "../../node_modules/@effect/tsgo/schema.json",
+  "extends": "../../tsconfig.json",
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    // For the shadcn CLI, which resolves the aliases of components.json through these.
+    "paths": {
+      "@recensio/ui": ["./src"],
+      "@recensio/ui/*": ["./src/*"]
+    }
+  }
+}

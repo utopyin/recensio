@@ -1,0 +1,36 @@
+{
+  "name": "@recensio/db",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./config": "./config.ts",
+    "./table": "./table.ts",
+    "./service": "./service.ts",
+    "./database": "./database.ts",
+    "./schema/*": "./schema/*.ts"
+  },
+  "scripts": {
+    "check:types": "tsc",
+    "generate": "drizzle-kit generate",
+    "migrate": "bun run migrate.ts",
+    "studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "@alchemy.run/cloudflare": "catalog:",
+    "@alchemy.run/docker": "catalog:",
+    "@alchemy.run/drizzle": "catalog:",
+    "@effect/platform-bun": "catalog:",
+    "@effect/sql-pg": "catalog:",
+    "alchemy": "catalog:",
+    "drizzle-orm": "catalog:",
+    "effect": "catalog:",
+    "pg": "catalog:"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "catalog:",
+    "@types/pg": "catalog:",
+    "drizzle-kit": "catalog:",
+    "typescript": "catalog:"
+  }
+}

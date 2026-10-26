@@ -1,0 +1,18 @@
+diff --git a/src/Workers/ViteChild.ts b/src/Workers/ViteChild.ts
+index 67b9646cf7cf9a5d302b3a67107810e4b0eb500e..bfe7013b2df9bf9e539a19accfae5fd21dc34254 100644
+--- a/src/Workers/ViteChild.ts
++++ b/src/Workers/ViteChild.ts
+@@ -41,7 +41,12 @@ export interface ViteChildHandle {
+ // at startup even though no child is ever spawned there. At spawn time
+ // we are guaranteed to be in Node/bun.
+ const resolveRunner = (basename: string) =>
+-  fileURLToPath(import.meta.resolve(`./${basename}${moduleExtension(import.meta.url)}`));
++  // Patched (recensio): under bun this module is loaded from `src/` even in a
++  // published install, and a node child cannot load TypeScript from
++  // `node_modules`. Hand it the built runner instead.
++  import.meta.url.includes("/node_modules/") && moduleExtension(import.meta.url) === ".ts"
++    ? fileURLToPath(new URL(`../../lib/Workers/${basename}.js`, import.meta.url))
++    : fileURLToPath(import.meta.resolve(`./${basename}${moduleExtension(import.meta.url)}`));
+ 
+ export const startViteChild = (
+   config: ViteChildConfig,

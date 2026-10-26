@@ -1,0 +1,71 @@
+{
+  "name": "recensio",
+  "version": "0.0.0",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "packages/*",
+      "domains/*",
+      "entrypoints/*",
+      "apps/*",
+      "scripts"
+    ],
+    "catalog": {
+      "react": "^19.3.1",
+      "react-dom": "^19.3.1",
+      "@types/react": "^19.3.0",
+      "@types/react-dom": "^19.3.0",
+      "effect": "4.0.6",
+      "@effect/platform-bun": "4.0.6",
+      "@effect/platform-node": "4.0.6",
+      "@effect/atom-react": "4.0.6",
+      "@effect/sql-pg": "4.0.6",
+      "alchemy": "2.0.0-beta.84",
+      "@alchemy.run/cloudflare": "2.0.0-beta.84",
+      "@alchemy.run/docker": "2.0.0-beta.84",
+      "@alchemy.run/drizzle": "2.0.0-beta.84",
+      "drizzle-orm": "1.0.0-rc.5",
+      "drizzle-kit": "1.0.0-rc.5",
+      "pg": "^8.23.1",
+      "@types/pg": "^8.23.1",
+      "@types/bun": "^1.4.4",
+      "typescript": "7.0.2",
+      "@cloudflare/workers-types": "^5.20261026.1"
+    }
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "alchemy dev",
+    "fix": "oxlint . --fix --disable-nested-config && oxfmt . --disable-nested-config",
+    "check:types": "turbo run check:types && tsc",
+    "check": "bun run fix && bun run check:deps && bun run check:types",
+    "prepare": "effect-tsgo patch --oxlint",
+    "deploy": "alchemy deploy --env-file .env.deploy",
+    "destroy": "alchemy destroy --env-file .env.deploy",
+    "check:deps": "bun run scripts/deps.ts",
+    "db:generate": "bun run --cwd packages/db generate",
+    "db:migrate": "bun run --cwd packages/db migrate",
+    "db:studio": "bun run --cwd packages/db studio"
+  },
+  "dependencies": {
+    "@alchemy.run/cloudflare": "catalog:",
+    "@alchemy.run/docker": "catalog:",
+    "@effect/platform-bun": "catalog:",
+    "@effect/platform-node": "catalog:",
+    "@recensio/db": "workspace:*",
+    "alchemy": "catalog:",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/tsgo": "0.59.0",
+    "oxfmt": "^0.74.0",
+    "oxlint": "1.89.0",
+    "oxlint-tsgolint": "7.0.2005",
+    "turbo": "^2.11.10",
+    "typescript": "catalog:"
+  },
+  "packageManager": "bun@1.4.4",
+  "patchedDependencies": {
+    "@alchemy.run/cloudflare@2.0.0-beta.84": "patches/@alchemy.run%2Fcloudflare@2.0.0-beta.84.patch"
+  }
+}

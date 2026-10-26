@@ -9,6 +9,7 @@ node_modules
 .env
 .env.*
 !.env.example
+!.env.deploy.example
 
 # typescript
 *.tsbuildinfo
@@ -27,3 +28,9 @@ worker-configuration.d.ts
 
 # agent worktrees
 .claude/worktrees/
+
+# tanstack start
+.tanstack
+.output
+.nitro
+dist
