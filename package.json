@@ -42,13 +42,12 @@
   "scripts": {
     "dev": "alchemy dev",
     "fix": "oxlint . --fix --disable-nested-config && oxfmt . --disable-nested-config",
-    "lint": "oxlint . --disable-nested-config && oxfmt . --check --disable-nested-config",
     "check:types": "turbo run check:types && tsc",
-    "check": "bun run fix && bun run check:deps && bun run check:types",
+    "check": "bun run check:lint && bun run check:types",
+    "check:lint": "oxlint . --disable-nested-config && oxfmt . --check --disable-nested-config",
     "prepare": "effect-tsgo patch --oxlint",
     "deploy": "alchemy deploy --stage prod --env-file .env.deploy",
     "destroy": "alchemy destroy --stage prod --env-file .env.deploy",
-    "check:deps": "bun run scripts/deps.ts",
     "db:generate": "bun run --cwd packages/db generate",
     "db:migrate": "bun run --cwd packages/db migrate",
     "db:studio": "bun run --cwd packages/db studio"

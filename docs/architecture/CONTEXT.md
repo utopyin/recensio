@@ -59,4 +59,4 @@ Tables are not owned by their domain. Every table is declared in `@recensio/db` 
 
 ## Enforcement
 
-`bun run check:deps` (`scripts/deps.ts`), part of `bun run check`. It reads every package's imports and fails on an upward edge, a cycle, a `@recensio/*` import missing from (or left unused in) `package.json`, or a relative import that leaves its package. A leaf-submodule claim is still checked by reading the module's imports.
+Three oxlint rules of the `recensio` plugin (`scripts/lint`), part of `bun run check`. Each file is checked for an upward edge (`recensio/workspace-layers`), a `@recensio/*` import that is undeclared in its `package.json` or closes a cycle (`recensio/workspace-imports`), and a relative import that leaves its package (`recensio/relative-imports`). A leaf-submodule claim is still checked by reading the module's imports.

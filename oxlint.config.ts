@@ -4,6 +4,8 @@ import { recommended } from "@effect/tsgo/oxlint-presets";
 export default defineConfig({
   ignorePatterns: ["repos", "**/routeTree.gen.ts", "packages/db/migrations"],
   extends: [recommended],
+  // The package architecture (`docs/architecture/CONTEXT.md`): see `scripts/lint`.
+  jsPlugins: ["./scripts/lint/index.ts"],
   overrides: [
     {
       files: ["apps/web/**/*", "packages/ui/**/*", "scripts/**/*"],
@@ -11,6 +13,11 @@ export default defineConfig({
         acc[key] = "off";
         return acc;
       }, {} as DummyRuleMap),
+    },
+    {
+      // Node loads the lint plugin as it is, and needs the extensions.
+      files: ["scripts/lint/**/*"],
+      rules: { "import/extensions": "off" },
     },
     {
       // State that outlives a component is an atom: see `apps/web/AGENTS.md`.
@@ -33,6 +40,9 @@ export default defineConfig({
     },
   ],
   rules: {
+    "recensio/workspace-layers": "error",
+    "recensio/workspace-imports": "error",
+    "recensio/relative-imports": "error",
     "import/extensions": ["error", "never"],
     // effect/http and effect/rpc are unstable modules; flagging every use is noise.
     "effecttsgo/unstable-api-usage": "off",
