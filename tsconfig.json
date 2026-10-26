@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/@effect/tsgo/schema.json",
-  "include": ["./alchemy.run.ts", "./oxlint.config.ts", "./oxfmt.config.ts"],
+  "include": ["./alchemy.run.ts", "./oxlint.config.ts", "./oxfmt.config.ts", "./stacks/**/*.ts"],
   "compilerOptions": {
     "target": "esnext",
     "strict": true,

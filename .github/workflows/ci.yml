@@ -1,0 +1,57 @@
+# Every pull request is checked. One labelled `prod` (stacks/github.ts) is
+# deployed to the `prod` stage once merged, from the commit it left on main.
+name: CI
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+jobs:
+  check:
+    if: github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+      - run: bun install --frozen-lockfile
+      - run: bun run lint
+      - run: bun run check:deps
+      - run: bun run check:types
+
+  deploy:
+    if: >-
+      github.event.action == 'closed' &&
+      github.event.pull_request.merged &&
+      contains(github.event.pull_request.labels.*.name, 'prod')
+    runs-on: ubuntu-latest
+    environment: prod
+    # One deploy at a time, and never one cancelled halfway.
+    concurrency:
+      group: deploy-prod
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+      - run: bun install --frozen-lockfile
+      - name: Write .env.deploy
+        run: printf '%s\n' "$ENV_DEPLOY" > .env.deploy
+        env:
+          ENV_DEPLOY: ${{ secrets.ENV_DEPLOY }}
+      - run: bunx alchemy provider check-env --provider Cloudflare
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      - run: bun run deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
