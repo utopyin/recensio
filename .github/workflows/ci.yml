@@ -57,8 +57,8 @@ jobs:
         with:
           bun-version-file: package.json
       - run: bun install --frozen-lockfile
-      - name: Write .env.deploy
-        run: printf '%s\n' "$ENV_DEPLOY" > .env.deploy
+      - name: Write .env.prod
+        run: printf '%s\n' "$ENV_DEPLOY" > .env.prod
         env:
           ENV_DEPLOY: ${{ secrets.ENV_DEPLOY }}
       - run: bunx alchemy provider check-env --provider Cloudflare

@@ -46,12 +46,13 @@
     "check": "bun run check:lint && bun run check:types",
     "check:lint": "oxlint . --disable-nested-config && oxfmt . --check --disable-nested-config",
     "prepare": "effect-tsgo patch --oxlint",
-    "deploy": "alchemy deploy --stage prod --env-file .env.deploy",
-    "destroy": "alchemy destroy --stage prod --env-file .env.deploy",
+    "deploy": "alchemy deploy --stage prod --env-file .env.prod",
+    "destroy": "alchemy destroy --stage prod --env-file .env.prod",
     "trigger:deploy": "git commit --allow-empty -m 'trigger: deploy prod'",
     "db:generate": "bun run --cwd packages/db generate",
     "db:migrate": "bun run --cwd packages/db migrate",
-    "db:studio": "bun run --cwd packages/db studio"
+    "db:studio": "bun run --cwd packages/db studio",
+    "db:studio:prod": "bun run --cwd packages/db studio:prod"
   },
   "dependencies": {
     "@alchemy.run/cloudflare": "catalog:",

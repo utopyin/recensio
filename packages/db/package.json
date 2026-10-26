@@ -16,7 +16,8 @@
     "check:types": "tsc",
     "generate": "drizzle-kit generate",
     "migrate": "bun --env-file=../../.env run migrate.ts",
-    "studio": "bun --env-file=../../.env run drizzle-kit studio"
+    "studio": "bun --env-file=../../.env run drizzle-kit studio",
+    "studio:prod": "bun --env-file=../../.env.prod run drizzle-kit studio"
   },
   "dependencies": {
     "@alchemy.run/cloudflare": "catalog:",

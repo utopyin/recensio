@@ -22,4 +22,4 @@ bun install
 bun run dev          # alchemy dev: Docker Postgres, migrations, the API worker and the site; open the `websiteUrl` it prints
 ```
 
-`bun run check` lints, formats and type-checks every workspace. `bun run deploy` / `bun run destroy` manage the Cloudflare stack through Alchemy, with the values of `.env.deploy` (see `.env.deploy.example`). Connect Cloudflare first with `bunx alchemy profile edit --add Cloudflare`.
+`bun run check` lints, formats and type-checks every workspace. `bun run deploy` / `bun run destroy` manage the Cloudflare stack through Alchemy, with the values of `.env.prod` (see `.env.prod.example`). Connect Cloudflare first with `bunx alchemy profile edit --add Cloudflare`.

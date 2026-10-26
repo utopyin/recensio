@@ -2,7 +2,7 @@
  * What CI needs to deploy, written into the GitHub repository: a Cloudflare
  * token scoped to this stack, the `prod` environment that holds it, the
  * deploy settings, and the label that asks for a deploy. Deploy it once, and
- * again whenever `.env.deploy` changes or a credential rotates:
+ * again whenever `.env.prod` changes or a credential rotates:
  *
  *   bun alchemy deploy --config stacks/github.ts --profile admin
  *
@@ -77,14 +77,14 @@ export default Alchemy.Stack(
       value: Redacted.make(accountId),
     });
 
-    // The deploy settings, as one secret holding `.env.deploy` whole: CI writes
+    // The deploy settings, as one secret holding `.env.prod` whole: CI writes
     // it back to the file and deploys as a local `bun run deploy` does.
     const fs = yield* FileSystem.FileSystem;
     yield* GitHub.Secret("EnvDeploy", {
       ...repo,
       environment,
       name: "ENV_DEPLOY",
-      value: Redacted.make(yield* fs.readFileString(".env.deploy")),
+      value: Redacted.make(yield* fs.readFileString(".env.prod")),
     });
 
     yield* GitHub.Label("DeployLabel", {
