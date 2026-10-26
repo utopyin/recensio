@@ -12,6 +12,25 @@ export default defineConfig({
         return acc;
       }, {} as DummyRuleMap),
     },
+    {
+      // State that outlives a component is an atom: see `apps/web/AGENTS.md`.
+      files: ["apps/web/**/*"],
+      rules: {
+        "no-restricted-imports": [
+          "error",
+          {
+            paths: [
+              {
+                name: "react",
+                importNames: ["createContext", "useContext"],
+                message:
+                  "Shared client state is an atom (effect/reactivity/Atom), read with @effect/atom-react hooks. See apps/web/AGENTS.md.",
+              },
+            ],
+          },
+        ],
+      },
+    },
   ],
   rules: {
     "import/extensions": ["error", "never"],
