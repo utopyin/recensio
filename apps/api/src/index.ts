@@ -18,6 +18,7 @@ import * as HttpServerError from "effect/http/HttpServerError";
 import * as SqlClient from "effect/sql/SqlClient";
 import { configuration } from "./configuration";
 import * as Mail from "./mail";
+import * as Telemetry from "./telemetry";
 
 /** The auth routes are built with `HttpApiBuilder`, which asks for a platform even though no file is served. */
 const platform = HttpPlatform.layer.pipe(
@@ -62,6 +63,8 @@ export default class Api extends Cloudflare.Worker<Api>()(
           Effect.provideService(Database.Service, db),
           // A build that fails is a misconfiguration or a database that is away.
           Effect.orDie,
+          // One line in a trace for what every request pays before its handler runs.
+          Effect.withSpan("Api.build"),
         );
         return yield* Routes.withClientAddress(handler).pipe(
           Effect.provideService(Database.Service, db),
@@ -76,7 +79,9 @@ export default class Api extends Cloudflare.Worker<Api>()(
             Effect.map(([response]) => response),
           ),
         ),
+        // Last, so a request is counted with the status it was answered with.
+        Routes.measured,
       ),
     };
-  }).pipe(Effect.provide([Postgres.layer, Cloudflare.Email.SendBinding])),
+  }).pipe(Effect.provide([Postgres.layer, Cloudflare.Email.SendBinding, Telemetry.layer])),
 ) {}

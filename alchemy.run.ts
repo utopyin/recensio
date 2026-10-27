@@ -1,3 +1,4 @@
+import * as Axiom from "@alchemy.run/axiom";
 import * as Cloudflare from "@alchemy.run/cloudflare";
 import * as Docker from "@alchemy.run/docker";
 import * as Alchemy from "alchemy";
@@ -25,12 +26,25 @@ export const Website = Cloudflare.Website.Vite(
 
 export type WebsiteEnv = Cloudflare.InferEnv<typeof Website>;
 
+/**
+ * Axiom holds the telemetry of a deploy (`apps/api/src/telemetry.ts`). Its
+ * dataset provider reads its credentials when it is built, planned or not, so
+ * `alchemy dev` leaves the providers out and still needs no Axiom login.
+ */
+const Telemetry = Layer.unwrap(
+  Effect.gen(function* () {
+    const dev = yield* Alchemy.ALCHEMY_DEV;
+    return dev ? Layer.empty : Axiom.providers();
+  }).pipe(Effect.orDie),
+);
+
 export default Alchemy.Stack(
   "Recensio",
   {
     providers: Docker.providers().pipe(
       Layer.provideMerge(Command.providers()),
       Layer.provideMerge(Cloudflare.providers()),
+      Layer.provideMerge(Telemetry),
     ),
     // `alchemy dev` runs every resource on this machine, so its state stays here too
     // and no Cloudflare login is needed. A deploy keeps its state in the account.

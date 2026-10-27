@@ -7,6 +7,7 @@
     "check:types": "tsc"
   },
   "dependencies": {
+    "@alchemy.run/axiom": "catalog:",
     "@alchemy.run/cloudflare": "catalog:",
     "@effect/sql-pg": "catalog:",
     "@recensio/db": "workspace:*",

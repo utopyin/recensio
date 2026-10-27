@@ -1,0 +1,23 @@
+diff --git a/src/Dataset.ts b/src/Dataset.ts
+index 382e148a4dda31f087b86b4e419666988d05047f..4e051f883deebff0d16fa910039ac7781f17e3e3 100644
+--- a/src/Dataset.ts
++++ b/src/Dataset.ts
+@@ -169,7 +169,9 @@ export const DatasetProvider = () =>
+   Provider.effect(
+     Dataset,
+     Effect.gen(function* () {
+-      const { apiBaseUrl } = yield* yield* Credentials;
++      // Resolved on first use: building the provider must not need credentials,
++      // or the CLI cannot load the stack to add them (`alchemy profile edit`).
++      const credentials = yield* Credentials;
+       const create = yield* Axiom.createDataset;
+       const update = yield* Axiom.updateDataset;
+       const get = yield* Axiom.getDataset;
+@@ -177,6 +179,7 @@ export const DatasetProvider = () =>
+       const del = yield* Axiom.deleteDataset;
+ 
+       const toAttrs = Effect.fn(function* (dataset: Axiom.Dataset) {
++        const { apiBaseUrl } = yield* credentials;
+         if (!dataset.edgeDeployment || !dataset.edgeDeploymentUrl) {
+           return yield* Effect.fail(
+             new Error(`Axiom dataset "${dataset.name}" is missing its edge deployment metadata`),

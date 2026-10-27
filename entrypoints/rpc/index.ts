@@ -52,3 +52,5 @@ export const layer = Layer.unwrap(
 );
 
 export const { withClientAddress } = Auth;
+
+export { measured } from "./metrics";

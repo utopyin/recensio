@@ -1,15 +1,18 @@
 /**
  * What CI needs to deploy, written into the GitHub repository: a Cloudflare
- * token scoped to this stack, the `prod` environment that holds it, the
- * deploy settings, and the label that asks for a deploy. Deploy it once, and
- * again whenever `.env.prod` changes or a credential rotates:
+ * token scoped to this stack, an Axiom token for its telemetry, the `prod`
+ * environment that holds both, the deploy settings, and the label that asks
+ * for a deploy. Deploy it once, and again whenever `.env.prod` changes or a
+ * credential rotates:
  *
  *   bun alchemy deploy --config stacks/github.ts --profile admin
  *
  * The `admin` profile must be allowed to create Cloudflare API tokens (the
- * Global API Key, or a token with `API Tokens Write`), and GitHub auth comes
- * from `gh auth token` or `GITHUB_TOKEN`.
+ * Global API Key, or a token with `API Tokens Write`), its Axiom entry must be
+ * allowed to create API tokens, and GitHub auth comes from `gh auth token` or
+ * `GITHUB_TOKEN`.
  */
+import * as Axiom from "@alchemy.run/axiom";
 import * as Cloudflare from "@alchemy.run/cloudflare";
 import * as GitHub from "@alchemy.run/github";
 import * as Alchemy from "alchemy";
@@ -26,7 +29,10 @@ export const DEPLOY_LABEL = "prod";
 export default Alchemy.Stack(
   "RecensioGitHub",
   {
-    providers: Layer.mergeAll(Cloudflare.providers(), GitHub.providers()),
+    providers: Cloudflare.providers().pipe(
+      Layer.provideMerge(GitHub.providers()),
+      Layer.provideMerge(Axiom.providers()),
+    ),
     state: Cloudflare.state(),
   },
   Effect.gen(function* () {
@@ -75,6 +81,23 @@ export default Alchemy.Stack(
       environment,
       name: "CLOUDFLARE_ACCOUNT_ID",
       value: Redacted.make(accountId),
+    });
+
+    // What the app stack does in Axiom (`apps/api/src/telemetry.ts`): create its
+    // datasets and the ingest-only token the worker holds. It reads no data.
+    const axiom = yield* Axiom.ApiToken("CIAxiomToken", {
+      name: "recensio-ci",
+      description: "Deploys the Recensio telemetry datasets and their ingest token, from CI",
+      orgCapabilities: {
+        datasets: ["create", "read", "update", "delete"],
+        apiTokens: ["create", "read", "delete"],
+      },
+    });
+    yield* GitHub.Secret("AxiomToken", {
+      ...repo,
+      environment,
+      name: "AXIOM_TOKEN",
+      value: axiom.token,
     });
 
     // The deploy settings, as one secret holding `.env.prod` whole: CI writes

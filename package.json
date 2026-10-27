@@ -21,6 +21,7 @@
       "@effect/atom-react": "4.0.6",
       "@effect/sql-pg": "4.0.6",
       "alchemy": "2.0.0-beta.84",
+      "@alchemy.run/axiom": "2.0.0-beta.84",
       "@alchemy.run/cloudflare": "2.0.0-beta.84",
       "@alchemy.run/docker": "2.0.0-beta.84",
       "@alchemy.run/drizzle": "2.0.0-beta.84",
@@ -41,12 +42,14 @@
   "type": "module",
   "scripts": {
     "dev": "alchemy dev",
+    "otel": "docker run --rm --init --name recensio-otel -p 127.0.0.1:3004:8080 -p 127.0.0.1:4317:4317 -p 127.0.0.1:4318:4318 clickhouse/clickstack-local:latest",
     "fix": "oxlint . --fix --disable-nested-config && oxfmt . --disable-nested-config",
     "check:types": "turbo run check:types && tsc",
     "check": "bun run check:lint && bun run check:types",
     "check:lint": "oxlint . --disable-nested-config && oxfmt . --check --disable-nested-config",
     "prepare": "effect-tsgo patch --oxlint",
     "deploy": "alchemy deploy --stage prod --env-file .env.prod",
+    "deploy:github": "alchemy deploy -c stacks/github.ts",
     "destroy": "alchemy destroy --stage prod --env-file .env.prod",
     "trigger:deploy": "git commit --allow-empty -m 'trigger: deploy prod'",
     "db:generate": "bun run --cwd packages/db generate",
@@ -55,6 +58,7 @@
     "db:studio:prod": "bun run --cwd packages/db studio:prod"
   },
   "dependencies": {
+    "@alchemy.run/axiom": "catalog:",
     "@alchemy.run/cloudflare": "catalog:",
     "@alchemy.run/docker": "catalog:",
     "@alchemy.run/github": "catalog:",
@@ -74,6 +78,7 @@
   },
   "packageManager": "bun@1.4.4",
   "patchedDependencies": {
-    "@alchemy.run/cloudflare@2.0.0-beta.84": "patches/@alchemy.run%2Fcloudflare@2.0.0-beta.84.patch"
+    "@alchemy.run/cloudflare@2.0.0-beta.84": "patches/@alchemy.run%2Fcloudflare@2.0.0-beta.84.patch",
+    "@alchemy.run/axiom@2.0.0-beta.84": "patches/@alchemy.run%2Faxiom@2.0.0-beta.84.patch"
   }
 }
